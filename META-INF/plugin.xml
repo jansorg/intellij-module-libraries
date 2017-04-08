@@ -1,6 +1,6 @@
 <idea-plugin>
     <name>ModuleLibraries</name>
-    <category>Misc</category>
+    <category>Navigation</category>
     <description>
         Enhances the project view with module libraries. Each module node in the tree now has a separate
         listing of its modules.
@@ -20,15 +20,6 @@
     <vendor>Joachim Ansorg</vendor>
     <idea-version since-build="145.0"/>
     <depends>com.intellij.modules.lang</depends>
-
-    <application-components>
-    </application-components>
-
-    <project-components>
-    </project-components>
-
-    <actions>
-    </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <treeStructureProvider implementation="com.ansorgit.intellij.modulelibs.projectView.StructureProvider" />
