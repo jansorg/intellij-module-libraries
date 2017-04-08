@@ -7,19 +7,17 @@ import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.util.Icons;
+import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.UUID;
 
 /**
- * A module libraries node has a module's dependencies as children.
+ * A module libraries node contains a module's dependencies as children and is displayed as a child node
+ * of a module node.
  *
- * User: jansorg
- * Date: 27.10.10
- * Time: 11:20
+ * @author jansorg
  */
 public class ModuleLibrariesNode extends ProjectViewNode<String> {
     private Module module;
@@ -34,23 +32,21 @@ public class ModuleLibrariesNode extends ProjectViewNode<String> {
         this.module = module;
     }
 
-
     @Override
     public boolean contains(@NotNull VirtualFile file) {
-        return someChildContainsFile(file);
+        return someChildContainsFile(file, false);
     }
 
     @NotNull
     @Override
     public Collection<? extends AbstractTreeNode> getChildren() {
         return ProjectNodeUtil.createModuleLibraries(module, getSettings(), false);
-        //return super.getChildren();
     }
 
     @Override
     protected void update(PresentationData presentation) {
         presentation.setPresentableText("Libraries");
-        presentation.setIcons(Icons.LIBRARY_ICON);
+        presentation.setIcon(PlatformIcons.LIBRARY_ICON);
     }
 
     @Override

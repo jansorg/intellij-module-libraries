@@ -15,9 +15,7 @@ import java.util.Collections;
  * A psi file node which is only equal to itself.
  * This avoids the selection jumping in the tree while opening and closing packages of library dependencies.
  *
- * User: jansorg
- * Date: 28.10.10
- * Time: 19:32
+ * @author jansorg
  */
 public class FixedPsiFileNode extends PsiFileNode {
     public FixedPsiFileNode(Project project, PsiFile value, ViewSettings viewSettings) {
@@ -31,7 +29,7 @@ public class FixedPsiFileNode extends PsiFileNode {
 
     @Override
     public boolean equals(Object object) {
-        return super.equals(object); //this == object;
+        return super.equals(object);
     }
 
     @Override

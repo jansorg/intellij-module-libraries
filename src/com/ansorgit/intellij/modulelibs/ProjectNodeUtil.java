@@ -1,10 +1,9 @@
 package com.ansorgit.intellij.modulelibs;
 
 import com.ansorgit.intellij.modulelibs.projectView.nodes.FixedPsiDirectoryNode;
-import com.ansorgit.intellij.modulelibs.projectView.nodes.FixedPsiFileNode;
+import com.ansorgit.intellij.modulelibs.projectView.nodes.NamedLibraryElement;
 import com.ansorgit.intellij.modulelibs.projectView.nodes.NamedLibraryElementNode;
 import com.intellij.ide.projectView.ViewSettings;
-import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
@@ -19,11 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * User: jansorg
- * Date: 27.10.10
- * Time: 11:26
- */
 public class ProjectNodeUtil {
     public static Collection<? extends AbstractTreeNode> createModuleLibraries(Module module, ViewSettings settings, boolean onlyExternal) {
         ProjectFileIndex fileIndex = ProjectRootManager.getInstance(module.getProject()).getFileIndex();
@@ -49,7 +43,7 @@ public class ProjectNodeUtil {
                 if (libraryName == null || libraryName.length() == 0) {
                     addLibraryChildren(libraryOrderEntry, children, module.getProject(), settings);
                 } else {
-                    children.add(new NamedLibraryElementNode(module.getProject(), new NamedLibraryElementNode.NamedLibraryElement(module, entry), settings));
+                    children.add(new NamedLibraryElementNode(module.getProject(), new NamedLibraryElement(module, libraryOrderEntry), settings));
                 }
             }
         }

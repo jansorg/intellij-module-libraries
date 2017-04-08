@@ -1,3 +1,7 @@
+- 2017-04-08:
+    o Version 0.4
+    o New release compatible with 145.0 or later
+
 - 2010-10-28: Version 0.2
     o Documented source code
     o Works for IDEA 9.x as well

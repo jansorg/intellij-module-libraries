@@ -1,14 +1,13 @@
 package com.ansorgit.intellij.modulelibs.projectView.nodes;
 
-import com.intellij.ide.IdeBundle;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ViewSettings;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.Icons;
+import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
@@ -16,12 +15,8 @@ import java.util.Collection;
 /**
  * This is just a wrapper which takes the original children nodes of "External libraries" and displays them
  * in a separate node named "All libraries".
- * <p/>
- * User: jansorg
- * Date: 27.10.10
- * Time: 10:56
  */
-public class AllExternalLibsNode extends ProjectViewNode<String> {
+public class AllAggregatedExternalLibsNode extends ProjectViewNode<String> {
     private Collection<? extends AbstractTreeNode> children;
 
     /**
@@ -31,14 +26,15 @@ public class AllExternalLibsNode extends ProjectViewNode<String> {
      * @param viewSettings the settings of the project view.
      * @param children
      */
-    public AllExternalLibsNode(Project project, ViewSettings viewSettings, Collection<? extends AbstractTreeNode> children) {
+    public AllAggregatedExternalLibsNode(Project project, ViewSettings viewSettings, Collection<? extends AbstractTreeNode> children) {
         super(project, "All libraries", viewSettings);
         this.children = children;
     }
 
     @Override
     public boolean contains(@NotNull VirtualFile file) {
-        return someChildContainsFile(file);
+        //a file should be opened in the module group instead
+        return false;
     }
 
     @NotNull
@@ -50,6 +46,6 @@ public class AllExternalLibsNode extends ProjectViewNode<String> {
     @Override
     protected void update(PresentationData presentation) {
         presentation.setPresentableText("All libraries (aggregated)");
-        presentation.setIcons(Icons.LIBRARY_ICON);
+        presentation.setIcon(PlatformIcons.LIBRARY_ICON);
     }
 }

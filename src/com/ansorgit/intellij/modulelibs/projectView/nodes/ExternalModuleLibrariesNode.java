@@ -1,6 +1,7 @@
 package com.ansorgit.intellij.modulelibs.projectView.nodes;
 
 import com.ansorgit.intellij.modulelibs.ProjectNodeUtil;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.projectView.PresentationData;
 import com.intellij.ide.projectView.ProjectViewNode;
 import com.intellij.ide.projectView.ViewSettings;
@@ -8,20 +9,18 @@ import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.PlatformIcons;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
-import java.util.Collections;
 
 /**
- * A node which groups the libraries of a single module.
- *
+ * A node which groups the libraries of a single module in the node "External libraries".
+ * <p>
  * At first it was supposed to only show the external library dependencies but currently it shows all libraries
  * (i.e. the same as ModuleLibrariesNode).
  *
- * User: jansorg
- * Date: 27.10.10
- * Time: 10:57
+ * @author jansorg
  */
 public class ExternalModuleLibrariesNode extends ProjectViewNode<Module> {
     /**
@@ -37,7 +36,7 @@ public class ExternalModuleLibrariesNode extends ProjectViewNode<Module> {
 
     @Override
     public boolean contains(@NotNull VirtualFile file) {
-        return false;
+        return someChildContainsFile(file, false);
     }
 
     @NotNull
@@ -51,8 +50,8 @@ public class ExternalModuleLibrariesNode extends ProjectViewNode<Module> {
         Module module = getValue();
 
         presentation.setPresentableText(module.getName() + " (internal & external)");
-        //presentation.setOpenIcon(module.getModuleType().getNodeIcon(true));
-        //presentation.setClosedIcon(module.getModuleType().getNodeIcon(false));
+        presentation.setIcon(AllIcons.Modules.ModulesNode);
+        presentation.setSeparatorAbove(true);
     }
 
     /**

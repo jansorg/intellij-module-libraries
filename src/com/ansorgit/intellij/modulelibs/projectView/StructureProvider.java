@@ -1,6 +1,6 @@
 package com.ansorgit.intellij.modulelibs.projectView;
 
-import com.ansorgit.intellij.modulelibs.projectView.nodes.AllExternalLibsNode;
+import com.ansorgit.intellij.modulelibs.projectView.nodes.AllAggregatedExternalLibsNode;
 import com.ansorgit.intellij.modulelibs.projectView.nodes.ExternalModuleLibrariesNode;
 import com.ansorgit.intellij.modulelibs.projectView.nodes.ModuleLibrariesNode;
 import com.intellij.ide.projectView.TreeStructureProvider;
@@ -10,9 +10,11 @@ import com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode;
 import com.intellij.ide.util.treeView.AbstractTreeNode;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,16 +27,31 @@ import java.util.List;
  * It also adds a "Libraries" node under each module content root node. This node is redundant to the module node in
  * the "External libraries" parent node.
  * <p/>
- * <p/>
- * User: jansorg
- * Date: 27.10.10
- * Time: 10:42
+ *
+ * @author jansorg
  */
 public class StructureProvider implements TreeStructureProvider {
-    public Collection<AbstractTreeNode> modify(AbstractTreeNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
+    private static void addExternalModuleSubgroups(ExternalLibrariesNode parent, ViewSettings settings, List<AbstractTreeNode> result) {
+        Project project = parent.getProject();
+        if (project == null) {
+            return;
+        }
+
+        for (Module module : ModuleManager.getInstance(project).getModules()) {
+            ExternalModuleLibrariesNode node = new ExternalModuleLibrariesNode(module, settings, project);
+            if (!node.getChildren().isEmpty()) {
+                result.add(node);
+            }
+        }
+    }
+
+    @NotNull
+    public Collection<AbstractTreeNode> modify(@NotNull AbstractTreeNode parent, @NotNull Collection<AbstractTreeNode> children, ViewSettings settings) {
         if (parent instanceof ExternalLibrariesNode) {
             return modifyExternalLibrariesNode((ExternalLibrariesNode) parent, children, settings);
-        } else if (parent instanceof PsiDirectoryNode && dirIsModuleRoot((PsiDirectoryNode) parent)) {
+        }
+
+        if (parent instanceof PsiDirectoryNode && dirIsModuleRoot((PsiDirectoryNode) parent)) {
             return modifyModuleRootNode(findModule((PsiDirectoryNode) parent), children, settings);
         }
 
@@ -43,9 +60,10 @@ public class StructureProvider implements TreeStructureProvider {
 
     private Module findModule(PsiDirectoryNode parent) {
         VirtualFile dir = parent.getVirtualFile();
+        Project project = parent.getProject();
 
-        if (dir != null) {
-            ProjectFileIndex fileIndex = ProjectRootManager.getInstance(parent.getProject()).getFileIndex();
+        if (dir != null && project != null) {
+            ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
             VirtualFile moduleContentRoot = fileIndex.getContentRootForFile(dir);
 
             if (moduleContentRoot == dir || dir.equals(moduleContentRoot)) {
@@ -64,9 +82,10 @@ public class StructureProvider implements TreeStructureProvider {
 
     private boolean dirIsModuleRoot(PsiDirectoryNode directoryNode) {
         VirtualFile dir = directoryNode.getVirtualFile();
+        Project project = directoryNode.getProject();
 
-        if (dir != null) {
-            ProjectFileIndex fileIndex = ProjectRootManager.getInstance(directoryNode.getProject()).getFileIndex();
+        if (dir != null && project != null) {
+            ProjectFileIndex fileIndex = ProjectRootManager.getInstance(project).getFileIndex();
             VirtualFile moduleContentRoot = fileIndex.getContentRootForFile(dir);
 
             return (moduleContentRoot == dir || dir.equals(moduleContentRoot));
@@ -83,23 +102,13 @@ public class StructureProvider implements TreeStructureProvider {
         result.add(createAllLibrariesNode(parent, children, settings));
 
         //now add a grouping by module, each module node shows its own external libraries
-        addModuleSubgroups(parent, settings, result);
+        addExternalModuleSubgroups(parent, settings, result);
 
         return result;
     }
 
-    private static void addModuleSubgroups(ExternalLibrariesNode parent, ViewSettings settings, List<AbstractTreeNode> result) {
-        Module[] modules = ModuleManager.getInstance(parent.getProject()).getModules();
-        for (Module module : modules) {
-            ExternalModuleLibrariesNode node = new ExternalModuleLibrariesNode(module, settings, parent.getProject());
-            if (!node.getChildren().isEmpty()) {
-                result.add(node);
-            }
-        }
-    }
-
     private AbstractTreeNode createAllLibrariesNode(ExternalLibrariesNode parent, Collection<AbstractTreeNode> children, ViewSettings settings) {
-        return new AllExternalLibsNode(parent.getProject(), settings, children);
+        return new AllAggregatedExternalLibsNode(parent.getProject(), settings, children);
     }
 
     public Object getData(Collection<AbstractTreeNode> selected, String dataName) {
