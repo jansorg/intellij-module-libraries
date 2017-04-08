@@ -1,6 +1,14 @@
 <idea-plugin>
+    <id>ModuleLibraries</id>
     <name>ModuleLibraries</name>
+    <version>0.4</version>
+
+    <vendor>Joachim Ansorg</vendor>
+
     <category>Navigation</category>
+    <idea-version since-build="145.0"/>
+    <depends>com.intellij.modules.lang</depends>
+
     <description>
         Enhances the project view with module libraries. Each module node in the tree now has a separate
         listing of its modules.
@@ -12,16 +20,11 @@
 
     <change-notes>
         <html>
-            Initial support for IDEA 9 and X, tested with 95.538 and 98.231.
+            Re-released for 145.0 or later.
         </html>
     </change-notes>
 
-    <version>0.4</version>
-    <vendor>Joachim Ansorg</vendor>
-    <idea-version since-build="145.0"/>
-    <depends>com.intellij.modules.lang</depends>
-
     <extensions defaultExtensionNs="com.intellij">
-        <treeStructureProvider implementation="com.ansorgit.intellij.modulelibs.projectView.StructureProvider" />
+        <treeStructureProvider implementation="com.ansorgit.intellij.modulelibs.projectView.StructureProvider"/>
     </extensions>
 </idea-plugin>
