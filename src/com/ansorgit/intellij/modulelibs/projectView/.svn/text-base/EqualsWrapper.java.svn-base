@@ -1,0 +1,32 @@
+package com.ansorgit.intellij.modulelibs.projectView;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+/**
+ * Currently this class is unused.
+ *
+ * This class was supposed to override the equals behaviour of some finally declared Jetbrains classes.
+ * Currently this is not necessary any more.
+ *
+ * User: jansorg
+ * Date: 27.10.10
+ * Time: 11:42
+ */
+public class EqualsWrapper {
+    public static <T> T wrap(T o) {
+        InvocationHandler handler = new InvocationHandler() {
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getName().equals("equals") && args.length == 1) {
+                    Object other = args[0];
+                    return proxy == other;
+                }
+
+                return method.invoke(proxy, args);
+            }
+        };
+
+        return (T) Proxy.newProxyInstance(o.getClass().getClassLoader(), new Class[]{o.getClass()}, handler);
+    }
+}

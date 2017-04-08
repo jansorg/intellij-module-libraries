@@ -1,0 +1,31 @@
+<idea-plugin version="2">
+    <name>ModuleLibraries</name>
+    <category>Misc</category>
+    <description>Enhances the project view with module libraries. Each module node in the tree now has a separate
+        listing of its modules.
+        The node "External libraries" is enhanced with the individual modules and their nodes.
+
+        Please keep in mind that this is a bad hack to get back the old behaviour of IDEA 8.x. It might not work at all in your installation of IntelliJ.
+    </description>
+
+    <change-notes>
+        Initial support for IDEA X, tested with 98.231.
+    </change-notes>
+
+    <version>0.2</version>
+    <vendor>Joachim Ansorg</vendor>
+    <idea-version since-build="95.0"/>
+
+    <application-components>
+    </application-components>
+
+    <project-components>
+    </project-components>
+
+    <actions>
+    </actions>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <treeStructureProvider implementation="com.ansorgit.intellij.modulelibs.projectView.StructureProvider"/>
+    </extensions>
+</idea-plugin>

@@ -1,0 +1,65 @@
+package com.ansorgit.intellij.modulelibs.projectView.nodes;
+
+import com.ansorgit.intellij.modulelibs.ProjectNodeUtil;
+import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.projectView.ProjectViewNode;
+import com.intellij.ide.projectView.ViewSettings;
+import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.Icons;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.UUID;
+
+/**
+ * A module libraries node has a module's dependencies as children.
+ *
+ * User: jansorg
+ * Date: 27.10.10
+ * Time: 11:20
+ */
+public class ModuleLibrariesNode extends ProjectViewNode<String> {
+    private Module module;
+
+    /**
+     * Creates an instance of the project view node.
+     *
+     * @param viewSettings the settings of the project view.
+     */
+    public ModuleLibrariesNode(Module module, ViewSettings viewSettings) {
+        super(module.getProject(), UUID.randomUUID().toString(), viewSettings);
+        this.module = module;
+    }
+
+
+    @Override
+    public boolean contains(@NotNull VirtualFile file) {
+        return someChildContainsFile(file);
+    }
+
+    @NotNull
+    @Override
+    public Collection<? extends AbstractTreeNode> getChildren() {
+        return ProjectNodeUtil.createModuleLibraries(module, getSettings(), false);
+        //return super.getChildren();
+    }
+
+    @Override
+    protected void update(PresentationData presentation) {
+        presentation.setPresentableText("Libraries");
+        presentation.setIcons(Icons.LIBRARY_ICON);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return this == object;
+    }
+
+    @Override
+    public boolean canRepresent(Object element) {
+        return false;
+    }
+}

@@ -1,0 +1,6 @@
+- 2010-10-28: Version 0.2
+    o Documented source code
+    o Works for IDEA 9.x as well
+
+- 2010-10-28: Version 0.1
+    o Initial version

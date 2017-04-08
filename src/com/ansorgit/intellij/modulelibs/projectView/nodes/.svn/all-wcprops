@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes
+END
+FixedPsiFileNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 114
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes/FixedPsiFileNode.java
+END
+ModuleLibrariesNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes/ModuleLibrariesNode.java
+END
+FixedPsiDirectoryNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes/FixedPsiDirectoryNode.java
+END
+AllExternalLibsNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 117
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes/AllExternalLibsNode.java
+END
+NamedLibraryElementNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes/NamedLibraryElementNode.java
+END
+ExternalModuleLibrariesNode.java
+K 25
+svn:wc:ra_dav:version-url
+V 125
+/svn/!svn/ver/3/trunk/ModuleLibraries/src/com/ansorgit/intellij/modulelibs/projectView/nodes/ExternalModuleLibrariesNode.java
+END

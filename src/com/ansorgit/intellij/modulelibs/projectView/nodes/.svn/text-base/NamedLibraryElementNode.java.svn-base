@@ -1,0 +1,228 @@
+/*
+ * Copyright 2000-2009 JetBrains s.r.o.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.ansorgit.intellij.modulelibs.projectView.nodes;
+
+import com.intellij.ide.IdeBundle;
+import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.projectView.ProjectViewNode;
+import com.intellij.ide.projectView.ViewSettings;
+import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.actionSystem.DataKey;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.roots.JdkOrderEntry;
+import com.intellij.openapi.roots.LibraryOrderEntry;
+import com.intellij.openapi.roots.OrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.ui.configuration.ProjectSettingsService;
+import com.intellij.openapi.util.IconLoader;
+import com.intellij.openapi.util.io.FileUtil;
+import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VfsUtil;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiManager;
+import org.jetbrains.annotations.NotNull;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
+/**
+ * This is a copy of the original Jetbrains class to use our own implementation of NamedLibraryElement.
+ * This is necessary to override the equals implementation of NamedLibraryElement to prevent
+ * selection 'jumping' in the project view tree.
+ */
+public class NamedLibraryElementNode extends ProjectViewNode<NamedLibraryElementNode.NamedLibraryElement> {
+    private static final Icon GENERIC_JDK_ICON = IconLoader.getIcon("/general/jdk.png");
+    private static final Icon LIB_ICON_OPEN = IconLoader.getIcon("/nodes/ppLibOpen.png");
+    private static final Icon LIB_ICON_CLOSED = IconLoader.getIcon("/nodes/ppLibClosed.png");
+
+    public NamedLibraryElementNode(Project project, NamedLibraryElement value, ViewSettings viewSettings) {
+        super(project, value, viewSettings);
+    }
+
+    /**
+     * This is a change of the original behaviour.
+     *
+     * @return
+     */
+    @NotNull
+    public Collection<AbstractTreeNode> getChildren() {
+        final List<AbstractTreeNode> children = new ArrayList<AbstractTreeNode>();
+        addLibraryChildren(getValue().getOrderEntry(), children, getProject(), this);
+
+        return children;
+    }
+
+    /**
+     * This method wraps the contained psiDirectories with our own implementation to override the equals and contains
+     * implementations.
+     *
+     * @param entry
+     * @param children
+     * @param project
+     * @param node
+     */
+    public static void addLibraryChildren(final OrderEntry entry, final List<AbstractTreeNode> children, Project project, ProjectViewNode node) {
+        final PsiManager psiManager = PsiManager.getInstance(project);
+        final VirtualFile[] files = entry.getFiles(OrderRootType.CLASSES);
+
+        for (final VirtualFile file : files) {
+            final PsiDirectory psiDir = psiManager.findDirectory(file);
+            if (psiDir == null) {
+                continue;
+            }
+
+            children.add(new FixedPsiDirectoryNode(project, psiDir, node.getSettings()));
+        }
+    }
+
+    public String getTestPresentation() {
+        return "Library: " + getValue().getName();
+    }
+
+    private static Icon getJdkIcon(JdkOrderEntry entry, boolean isExpanded) {
+        final Sdk jdk = entry.getJdk();
+        if (jdk == null) {
+            return GENERIC_JDK_ICON;
+        }
+        return isExpanded ? jdk.getSdkType().getIconForExpandedTreeNode() : jdk.getSdkType().getIcon();
+    }
+
+    public String getName() {
+        return getValue().getName();
+    }
+
+    public boolean contains(@NotNull VirtualFile file) {
+        return false;
+    }
+
+    /**
+     * This is a change of the original behaviour.
+     *
+     * @param object
+     * @return
+     */
+    @Override
+    public boolean equals(Object object) {
+        return this == object;
+    }
+
+    private static boolean orderEntryContainsFile(OrderEntry orderEntry, VirtualFile file) {
+        for (OrderRootType rootType : OrderRootType.getAllTypes()) {
+            if (containsFileInOrderType(orderEntry, rootType, file)) return true;
+        }
+        return false;
+    }
+
+    private static boolean containsFileInOrderType(final OrderEntry orderEntry, final OrderRootType orderType, final VirtualFile file) {
+        if (!orderEntry.isValid()) return false;
+        VirtualFile[] files = orderEntry.getFiles(orderType);
+        for (VirtualFile virtualFile : files) {
+            boolean ancestor = VfsUtil.isAncestor(virtualFile, file, false);
+            if (ancestor) return true;
+        }
+        return false;
+    }
+
+    public void update(PresentationData presentation) {
+        presentation.setPresentableText(getValue().getName());
+        final OrderEntry orderEntry = getValue().getOrderEntry();
+        presentation.setOpenIcon(orderEntry instanceof JdkOrderEntry ? getJdkIcon((JdkOrderEntry) orderEntry, true) : LIB_ICON_OPEN);
+        presentation.setClosedIcon(orderEntry instanceof JdkOrderEntry ? getJdkIcon((JdkOrderEntry) orderEntry, false) : LIB_ICON_CLOSED);
+        if (orderEntry instanceof JdkOrderEntry) {
+            final JdkOrderEntry jdkOrderEntry = (JdkOrderEntry) orderEntry;
+            final Sdk projectJdk = jdkOrderEntry.getJdk();
+            if (projectJdk != null) { //jdk not specified
+                presentation.setLocationString(FileUtil.toSystemDependentName(projectJdk.getHomePath()));
+            }
+        }
+    }
+
+    protected String getToolTip() {
+        OrderEntry orderEntry = getValue().getOrderEntry();
+        return orderEntry instanceof JdkOrderEntry ? IdeBundle.message("node.projectview.jdk") : StringUtil.capitalize(IdeBundle.message("node.projectview.library", ((LibraryOrderEntry) orderEntry).getLibraryLevel()));
+    }
+
+    public void navigate(final boolean requestFocus) {
+        NamedLibraryElement value = getValue();
+
+        com.intellij.ide.projectView.impl.nodes.NamedLibraryElement dummyValue = new com.intellij.ide.projectView.impl.nodes.NamedLibraryElement(getValue().getModule(), getValue().getOrderEntry());
+        ProjectSettingsService.getInstance(myProject).openProjectLibrarySettings(dummyValue);
+    }
+
+    public boolean canNavigate() {
+        return true;
+    }
+
+    @Override
+    public boolean canRepresent(Object element) {
+        return this == element;
+    }
+
+    /**
+     * @author Eugene Zhuravlev
+     * Date: Sep 17, 2003
+     * Time: 7:08:30 PM
+     */
+    public static class NamedLibraryElement {
+      public static final DataKey<NamedLibraryElement[]> ARRAY_DATA_KEY = DataKey.create("namedLibrary.array");
+
+      private final Module myContextModule;
+      private final OrderEntry myEntry;
+
+      public NamedLibraryElement(Module parent, OrderEntry entry) {
+        myContextModule = parent;
+        myEntry = entry;
+      }
+
+      public Module getModule() {
+        return myContextModule;
+      }
+
+      public String getName() {
+        return myEntry.getPresentableName();
+      }
+
+      public boolean equals(Object o) {
+          /*if (this == o) return true;
+         if (!(o instanceof NamedLibraryElement)) return false;
+
+         final NamedLibraryElement namedLibraryElement = (NamedLibraryElement)o;
+
+         if (!myEntry.equals(namedLibraryElement.myEntry)) return false;
+         if (!Comparing.equal(myContextModule, namedLibraryElement.myContextModule)) return false;
+
+         return true;*/
+          return this == o;
+      }
+
+      public int hashCode() {
+        int result;
+        result = myContextModule != null ? myContextModule.hashCode() : 0;
+        result = 29 * result + myEntry.hashCode();
+        return result;
+      }
+
+      public OrderEntry getOrderEntry() {
+        return myEntry;
+      }
+    }
+}

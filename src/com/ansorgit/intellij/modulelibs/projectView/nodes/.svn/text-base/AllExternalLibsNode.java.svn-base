@@ -1,0 +1,71 @@
+package com.ansorgit.intellij.modulelibs.projectView.nodes;
+
+import com.intellij.ide.IdeBundle;
+import com.intellij.ide.projectView.PresentationData;
+import com.intellij.ide.projectView.ProjectViewNode;
+import com.intellij.ide.projectView.ViewSettings;
+import com.intellij.ide.util.treeView.AbstractTreeNode;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.Icons;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Collection;
+
+/**
+ * This is just a wrapper which takes the original children nodes of "External libraries" and displays them
+ * in a separate node named "All libraries".
+ *
+ * User: jansorg
+ * Date: 27.10.10
+ * Time: 10:56
+ */
+public class AllExternalLibsNode extends ProjectViewNode<String> {
+    private Collection<? extends AbstractTreeNode> children;
+
+    /**
+     * Creates an instance of the project view node.
+     *
+     * @param project      the project containing the node.
+     * @param viewSettings the settings of the project view.
+     * @param children
+     */
+    public AllExternalLibsNode(Project project, ViewSettings viewSettings, Collection<? extends AbstractTreeNode> children) {
+        super(project, "All libraries", viewSettings);
+        this.children = children;
+    }
+
+    @Override
+    public boolean contains(@NotNull VirtualFile file) {
+        return someChildContainsFile(file);
+    }
+
+    @NotNull
+    @Override
+    public Collection<? extends AbstractTreeNode> getChildren() {
+        return children;
+    }
+
+    @Override
+    protected void update(PresentationData presentation) {
+        presentation.setPresentableText("All libraries (aggregated)");
+        presentation.setIcons(Icons.LIBRARY_ICON);
+    }
+
+    /**
+     * Copies from ProjectViewNode.
+     *
+     * @param file
+     * @return
+     */
+    public boolean someChildContainsFile(final VirtualFile file) {
+        Collection<? extends AbstractTreeNode> kids = getChildren();
+        for (final AbstractTreeNode kid : kids) {
+            ProjectViewNode node = (ProjectViewNode) kid;
+            if (node.contains(file)) return true;
+        }
+
+        return false;
+    }
+}
